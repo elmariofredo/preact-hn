@@ -1,18 +1,24 @@
 'use strict';
 
 import {MemoryRetrieve, MemoryStore} from 'utils/memory';
-import {ITEMS_PER_PAGE, LIST_TYPES} from 'utils/constants';
-import {ListRange, List, PagedList, EntityId, EntityItemMap, EntityMap, ListRetrieve, ListCallbacks} from './api-types';
+import {ITEMS_PER_PAGE} from 'utils/constants';
+import {
+  UUID,
+  ListRange,
+  List,
+  ListPage,
+  NumberToFeedItemId,
+  NumberToFeedItem,
+  FeedItem,
+  RetrieveList,
+  ListCallbacks,
+} from 'api/types';
 
-let LATEST_UUID = {};
-// Pre-populate based on how many list types are supported.
-Object.keys(LIST_TYPES).forEach(function(list) {
-  LATEST_UUID[list] = null;
-});
+let LATEST_UUID: UUID;
 
 export function listRange(page: number): ListRange {
   const from = (page - 1) * ITEMS_PER_PAGE;
-  const to = from + ITEMS_PER_PAGE;
+  const to = from + (ITEMS_PER_PAGE - 1);
 
   return {
     from,
@@ -24,7 +30,7 @@ export function storeList({uuid, items, max, type, $entities}: List): void {
   MemoryStore(
     Object.assign(
       {
-        [uuid]: {
+        [`${uuid} ${type}`]: {
           items,
           max,
           type,
@@ -33,10 +39,13 @@ export function storeList({uuid, items, max, type, $entities}: List): void {
       $entities,
     ),
   );
-  setLatestUUID(type, uuid);
+  setLatestUUID(uuid);
 }
 
-function deriveResponse({type, to, from, page}, {uuid, items, max, $entities}): PagedList {
+function deriveResponse(
+  {to, from, page}: ListRange & ListPage,
+  {type, uuid, items, max, $entities}: List,
+): List & ListPage {
   const stored = MemoryRetrieve(uuid);
 
   storeList({
@@ -52,7 +61,7 @@ function deriveResponse({type, to, from, page}, {uuid, items, max, $entities}): 
     items: Object.assign(
       {},
       ...Object.keys(items)
-        .filter(key => key >= from && key <= to)
+        .filter(key => Number(key) >= from && Number(key) <= to)
         .map(key => ({[key]: items[key]})),
     ),
     type,
@@ -62,20 +71,19 @@ function deriveResponse({type, to, from, page}, {uuid, items, max, $entities}): 
   };
 }
 
-export function setLatestUUID(type, uuid): void {
-  LATEST_UUID[type] = uuid;
+export function setLatestUUID(uuid): void {
+  LATEST_UUID = uuid;
 }
 
 export async function getList(
-  {listType, page = 1, uuid = LATEST_UUID[listType]}: ListRetrieve,
+  {type, page = 1, uuid = LATEST_UUID}: RetrieveList,
   callbacks: ListCallbacks,
 ): Promise<void> {
-  const list = MemoryRetrieve(uuid) as List;
-  const stored = uuid && list;
-  const {from, to} = listRange(page);
-  let fetchUrl = `/api/list/${listType}?from=${from}&to=${to}`;
+  const list: List = (uuid && (MemoryRetrieve(`${uuid} ${type}`) as List)) || null;
+  const {from, to}: ListRange = listRange(page);
+  let fetchUrl: string = `/api/list/${type}?from=${from}&to=${to}`;
 
-  if (stored) {
+  if (list !== null) {
     // The memory store has data for this uuid, filter the data for the range requested (from->to).
     const cachedKeys: string[] = Object.keys(list.items).filter(itemOrder => {
       const itemOrderValue = Number(itemOrder);
@@ -84,14 +92,14 @@ export async function getList(
 
     // Create a copy of the data for the range we have in-memory.
     // This allows the UI to have at least a partial response.
-    let cachedItems: EntityItemMap = {};
-    let cachedEntities: EntityMap = {};
+    let cachedItems: NumberToFeedItemId;
+    let cachedEntities: NumberToFeedItem;
     cachedKeys.forEach(key => {
-      const entityId: EntityId = stored.items[key];
+      const entityId: FeedItem['id'] = list.items[key];
       cachedItems[key] = entityId;
       cachedEntities[entityId] = MemoryRetrieve(entityId);
     });
-    const storedResponse: PagedList = {
+    const storedResponse: List & ListPage = {
       uuid,
       items: cachedItems,
       type: list.type,
@@ -112,13 +120,13 @@ export async function getList(
 
       // Change the fetch url to include the active UUID.
       // This means we will get results for a known uuid.
-      fetchUrl = `/api/list/${listType}?uuid=${uuid}&from=${from}&to=${to}`;
+      fetchUrl = `/api/list/${type}?uuid=${uuid}&from=${from}&to=${to}`;
     }
   }
 
   try {
-    const json = await (await fetch(fetchUrl)).json();
-    callbacks.complete(deriveResponse({type: listType, to, from, page}, json));
+    const json: List = await (await fetch(fetchUrl)).json();
+    callbacks.complete(deriveResponse({to, from, page}, json));
   } catch (error) {
     callbacks.error(error);
   }

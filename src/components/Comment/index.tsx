@@ -8,41 +8,39 @@ import Text from 'components/Text';
 
 import formatTime from 'utils/time';
 import comments from 'api/comments';
+import {Details} from 'api/types';
 
 import styles from './styles.css';
 
 const Error = _ => navigator.onLine && <Text text={'Unable to load comments.'} />;
 
 interface CommentProps {
-  root: number;
-  data: any;
+  data: Details;
   kidsOnly?: boolean;
 }
-function Comment({root, data, kidsOnly}: CommentProps): JSX.Element {
+function Comment({data, kidsOnly}: CommentProps): JSX.Element {
   if (!data || data === null) {
     return <Loading />;
   }
 
   if (kidsOnly) {
-    const {kids} = data[root];
-    return kids && <div>{Object.values(kids).map(kid => <Comment root={kid} data={data} />)}</div>;
+    const {comments} = data;
+    return comments && <div>{comments.map(comment => <Comment data={comment} />)}</div>;
   }
 
-  const {by, time, text, kids} = data[root];
+  const {user, time, content, comments} = data;
   return (
-    text && (
+    content && (
       <article class={styles.comment}>
         <header class={styles.header}>
-          <a href={`/user/${by}`} class={styles.userLink}>
-            {by}
+          <a href={`/user/${user}`} class={styles.userLink}>
+            {user}
           </a>
           <span class={styles.ago}>{formatTime(time)} ago</span>
         </header>
-        <Text text={text} isComment={true} />
-        {kids && (
-          <div class={styles.kids}>
-            {Object.values(kids).map(kid => <Comment root={kid} data={data} kidsOnly={false} />)}
-          </div>
+        <Text text={content} isComment={true} />
+        {comments && (
+          <div class={styles.kids}>{comments.map(comment => <Comment data={comment} kidsOnly={false} />)}</div>
         )}
       </article>
     )

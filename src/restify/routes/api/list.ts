@@ -1,52 +1,73 @@
 import {listRange} from 'api/list';
-import {PagedList, List, ListRange} from 'api/api-types';
+// import {PagedList, List, ListRange} from 'api/api-types';
+import {UUID, List, ListRange, NumberToFeedItem, NumberToFeedItemId} from 'api/types';
 import {LIST_TYPES} from 'utils/constants';
-import {getItem, uuid as ForegroundDataUUID, latest} from '../../storage/foreground';
+import {getLatestUUID, getFeed, getFeedItem} from 'storage/foreground';
+// import {getItem, uuid as ForegroundDataUUID, latest} from '../../storage/foreground';
 
-function generateJSON(req, {type, from, to, uuid}): List & ListRange {
-  const latestNewItems = latest(type);
-  const rangedItems = latestNewItems.slice(from, to);
+interface ListRequestParameters {
+  type: LIST_TYPES;
+  from: number;
+  to: number;
+  uuid: UUID;
+}
+async function generateJSON({type, from, to, uuid}: ListRequestParameters): Promise<List & ListRange> {
+  const feedItems: NumberToFeedItemId = getFeed(type, uuid);
+  if (feedItems === null) {
+    return null;
+  }
+
+  let items: NumberToFeedItemId = {};
+  let $entities: NumberToFeedItem = {};
+  for (const id in feedItems) {
+    const formattedId = Number(id);
+    const feedItemId = feedItems[id];
+    if (formattedId >= from && formattedId <= to) {
+      items[formattedId] = feedItemId;
+      $entities[feedItemId] = await getFeedItem(feedItemId);
+    } else if (formattedId > to) {
+      break;
+    }
+  }
 
   return {
     uuid,
     type,
     from,
     to,
-    max: latestNewItems.length,
-    items: rangedItems.reduce(function(acc, cur, index) {
-      acc[index + from] = cur;
-      return acc;
-    }, {}),
-    $entities: rangedItems.reduce(function(acc, cur, index) {
-      const item = getItem(cur);
-      if (item) {
-        acc[item.id] = item;
-      }
-      return acc;
-    }, {}),
+    max: Object.keys(feedItems).length,
+    items,
+    $entities,
   };
 }
 
-export function route(req, res, next): void {
+export async function route(req, res, next: () => void): Promise<void> {
   res.setHeader('content-type', 'application/json; charset=utf-8');
 
-  const {type = LIST_TYPES.top, from = 0, to = 29, uuid} = req.params;
-  res.send(
-    generateJSON(req, {
+  const {type = 'top', from = 0, to = 29, uuid = getLatestUUID()} = req.params;
+  try {
+    const json = await generateJSON({
       type,
       from: Number(from),
       to: Number(to),
-      uuid: uuid || ForegroundDataUUID(type),
-    }),
-  );
+      uuid,
+    });
+
+    res.send(200, json);
+  } catch (error) {
+    res.send(200, {});
+  }
 
   next();
 }
 
-export function serverRoute(req, {type}): PagedList {
+export async function serverRoute(req, {type}): Promise<ListRange> {
   const page = req.params.id || 1;
   const {from, to} = listRange(page);
-  let json = generateJSON(req, {type, from, to, uuid: ForegroundDataUUID(type)});
-
-  return Object.assign(json, {page});
+  try {
+    const json = await generateJSON({type, from, to, uuid: getLatestUUID()});
+    return Object.assign(json, {page});
+  } catch (error) {
+    return {from, to};
+  }
 }

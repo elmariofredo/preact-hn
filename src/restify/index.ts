@@ -39,7 +39,7 @@ server.use(setRequestResources(WebpackResources(logger)));
 server.get('/api/list/:type', apiListRoute);
 server.get('/api/items', apiItemsRoute);
 server.get('/api/comments/:id', apiCommentsRoute);
-server.get('/:type/:id', insecureRedirect, defaultRoute);
+server.get('/item/:id', insecureRedirect, defaultRoute);
 server.get('/shell', shellRoute);
 server.get('/dist/:classification/:file', staticRoute);
 server.get('/static/icons/:file', staticIconRoute);
@@ -51,4 +51,9 @@ ForegroundDataInit();
 
 server.listen(22164, function() {
   console.log('%s listening at %s', server.name, server.url);
+});
+
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at:', p, 'reason:', reason);
+  // application specific logging, throwing an error, or other logic here
 });

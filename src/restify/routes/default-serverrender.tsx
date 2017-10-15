@@ -7,9 +7,8 @@ import Loading from 'components/Loading';
 import List from 'components/List';
 
 import {serverRoute} from './api/list';
-import {LIST_TYPES} from 'utils/constants';
 
-export default function defaultRoute(req, res, next) {
+export default async function defaultRoute(req, res, next): Promise<void> {
   const supportsManifest = req.userAgentClassifiction === 'chrome';
   const resources = req.resources;
 
@@ -33,10 +32,11 @@ export default function defaultRoute(req, res, next) {
   });
 
   let data = {};
-
-  const listType = req.params.type ? LIST_TYPES[req.params.type] : req.url === '/' ? LIST_TYPES['top'] : null;
+  const listType = (req.url === '/' && 'top') || req.params.type || null;
+  console.log(`render, type: ${listType}`, req.params, req.url);
   if (listType) {
-    data = serverRoute(req, {type: listType});
+    data = await serverRoute(req, {type: listType});
+    console.log(data);
   }
 
   res.write(`<!DOCTYPE html>

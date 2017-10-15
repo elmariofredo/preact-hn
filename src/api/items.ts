@@ -1,12 +1,12 @@
 import {MemoryRetrieve, MemoryStore} from 'utils/memory';
-import {Items, EntityMap, ItemsRetrieve, ItemsCallbacks} from './api-types';
+import {Items, NumberToFeedItem, RetrieveItems, ItemsCallbacks} from 'api/types';
 
-export default async ({keys}: ItemsRetrieve, callbacks: ItemsCallbacks): Promise<void> => {
+export default async ({keys}: RetrieveItems, callbacks: ItemsCallbacks): Promise<void> => {
   // Keys are from entities table.
-  let resolved: EntityMap = {};
-  let anyResolved: boolean;
-  let unresolved: EntityMap = {};
-  let anyUnresolved: boolean;
+  let resolved: NumberToFeedItem = {};
+  let anyResolved: boolean = false;
+  let unresolved: NumberToFeedItem = {};
+  let anyUnresolved: boolean = false;
 
   keys.forEach(key => {
     const entity = MemoryRetrieve(key);
@@ -21,12 +21,11 @@ export default async ({keys}: ItemsRetrieve, callbacks: ItemsCallbacks): Promise
   });
 
   if (anyResolved) {
-    if (anyUnresolved) {
-      callbacks.partial(resolved);
-    } else {
+    if (!anyUnresolved) {
       callbacks.complete(resolved);
       return;
     }
+    callbacks.partial(resolved);
   }
 
   try {

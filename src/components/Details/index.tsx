@@ -1,13 +1,13 @@
 import {h} from 'preact';
+import {FeedItem, Details} from 'api/types';
 
 import Loading from 'components/Loading';
 import Comment from 'components/Comment';
-import Text from 'components/Text';
 
 import styles from './styles.css';
 
 interface Props {
-  data: any;
+  data: Map<FeedItem['id'], FeedItem | Details>;
   matches?: any;
   children?: JSX.Element[];
 }
@@ -16,8 +16,8 @@ export default function({matches: {id}, data}: Props): JSX.Element {
     return <Loading />;
   }
 
-  const thisId = parseInt(id, 10);
-  const {url, title, score, by, descendants = 0, text} = data[thisId];
+  const thisId = Number(id);
+  const {url, title, points, user, comments_count = 0}: FeedItem | Details = data[thisId];
   return (
     <div>
       <article class={styles.article}>
@@ -28,14 +28,13 @@ export default function({matches: {id}, data}: Props): JSX.Element {
         </h1>
         {url && <small class={styles.hostname}>({new URL(url).hostname})</small>}
         <p class={styles.byline}>
-          {score} points by{' '}
-          <a href={`/user/${by}`} class={styles.link}>
-            {by}
+          {points} points by{' '}
+          <a href={`/user/${user}`} class={styles.link}>
+            {user}
           </a>
         </p>
-        <Text text={text} />
       </article>
-      <Comment descendants={descendants} root={thisId} />
+      <Comment descendants={comments_count} root={thisId} />
     </div>
   );
 }
