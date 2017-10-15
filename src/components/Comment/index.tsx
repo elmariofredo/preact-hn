@@ -64,7 +64,7 @@ export default class Export extends Component<Props, null> {
         {error && <Error />}
         {!error && (
           <section>
-            <Comment root={this.props.root} data={data} kidsOnly={true} />
+            <Comment data={data} kidsOnly={true} />
           </section>
         )}
       </div>

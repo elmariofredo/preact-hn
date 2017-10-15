@@ -38,7 +38,7 @@ function zopfliFile(name) {
 }
 
 function optimizeFileDelivery(name) {
-  // uglifyFile(name);
+  uglifyFile(name);
   switch (classification) {
     case 'chrome':
     case 'firefox':
