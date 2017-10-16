@@ -46,7 +46,7 @@ function deriveResponse(
   {to, from, page}: ListRange & ListPage,
   {type, uuid, items, max, $entities}: List,
 ): List & ListPage {
-  const stored = MemoryRetrieve(uuid);
+  const stored = MemoryRetrieve(`${uuid} ${type}`);
 
   storeList({
     uuid,
@@ -84,6 +84,10 @@ export async function getList(
   let fetchUrl: string = `/api/list/${type}?from=${from}&to=${to}`;
 
   if (list !== null) {
+    // Change the fetch url to include the active UUID.
+    // This means we will get results for a known uuid.
+    fetchUrl = `/api/list/${type}?uuid=${uuid}&from=${from}&to=${to}`;
+
     // The memory store has data for this uuid, filter the data for the range requested (from->to).
     const cachedKeys: string[] = Object.keys(list.items).filter(itemOrder => {
       const itemOrderValue = Number(itemOrder);
@@ -92,8 +96,8 @@ export async function getList(
 
     // Create a copy of the data for the range we have in-memory.
     // This allows the UI to have at least a partial response.
-    let cachedItems: NumberToFeedItemId;
-    let cachedEntities: NumberToFeedItem;
+    let cachedItems: NumberToFeedItemId = {};
+    let cachedEntities: NumberToFeedItem = {};
     cachedKeys.forEach(key => {
       const entityId: FeedItem['id'] = list.items[key];
       cachedItems[key] = entityId;
@@ -117,10 +121,6 @@ export async function getList(
     } else {
       // Give the UI the partial response before we fetch the remainder.
       callbacks.partial(storedResponse);
-
-      // Change the fetch url to include the active UUID.
-      // This means we will get results for a known uuid.
-      fetchUrl = `/api/list/${type}?uuid=${uuid}&from=${from}&to=${to}`;
     }
   }
 

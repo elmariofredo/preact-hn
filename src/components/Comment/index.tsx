@@ -60,7 +60,7 @@ export default class Export extends Component<Props, null> {
     const {descendants} = this.props;
     return (
       <div class={styles.comments}>
-        {!error && <h2 class={styles.numberOfComments}>{`${descendants} comment${descendants > 1 && 's'}`}</h2>}
+        {!error && <h2 class={styles.numberOfComments}>{`${descendants} comment${descendants > 1 ? 's' : ''}`}</h2>}
         {error && <Error />}
         {!error && (
           <section>

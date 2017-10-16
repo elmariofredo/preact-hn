@@ -14,11 +14,7 @@ interface State {
   uuid: UUID;
 }
 export default class extends Component<Props, State> {
-  componentWillReceiveProps() {
-    this.handleUUIDChange(null);
-  }
-
-  render({matches, type}: Props, {uuid = null}: State): JSX.Element {
+  render({matches, type}: Props, {uuid}: State): JSX.Element {
     const values: RetrieveList = {
       page: parseInt(matches.page || 1, 10),
       type,

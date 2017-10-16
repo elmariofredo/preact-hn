@@ -52,6 +52,7 @@ export interface Comments {
   $entities: Details;
 }
 export interface CommentCallbacks {
+  partial: (partialComments: Details) => void;
   complete: (completeComments: Details) => void;
   error: (error: any) => void;
 }
