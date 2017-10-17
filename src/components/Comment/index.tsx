@@ -1,13 +1,11 @@
-import {h, Component} from 'preact';
+import {h} from 'preact';
 //import Markup from 'preact-markup';
 //TODO: Investigate switching over to Markup. <div><Markup markup={text} /></div>
 
-import WithData from 'components/WithData';
 import Loading from 'components/Loading';
 import Text from 'components/Text';
 
 import formatTime from 'utils/time';
-import comments from 'api/comments';
 import {Details} from 'api/types';
 
 import styles from './styles.css';
@@ -49,25 +47,19 @@ function Comment({data, kidsOnly}: CommentProps): JSX.Element {
 
 interface Props {
   descendants: number;
-  root: number;
+  data: Details;
+  error: boolean;
 }
-export default class Export extends Component<Props, null> {
-  render({root}) {
-    return <WithData source={comments} values={{root}} render={this.CommentsWithData} />;
-  }
-
-  private CommentsWithData = (data, error): JSX.Element => {
-    const {descendants} = this.props;
-    return (
-      <div class={styles.comments}>
-        {!error && <h2 class={styles.numberOfComments}>{`${descendants} comment${descendants > 1 ? 's' : ''}`}</h2>}
-        {error && <Error />}
-        {!error && (
-          <section>
-            <Comment data={data} kidsOnly={true} />
-          </section>
-        )}
-      </div>
-    );
-  };
+export default function({descendants, data, error}: Props): JSX.Element {
+  return (
+    <div class={styles.comments}>
+      {!error && <h2 class={styles.numberOfComments}>{`${descendants} comment${descendants > 1 ? 's' : ''}`}</h2>}
+      {error && <Error />}
+      {!error && (
+        <section>
+          <Comment data={data} kidsOnly={true} />
+        </section>
+      )}
+    </div>
+  );
 }

@@ -8,35 +8,34 @@ import Text from 'components/Text';
 import styles from './styles.css';
 
 interface Props {
-  data: Map<FeedItem['id'], FeedItem | Details>;
+  data: FeedItem | Details;
+  error: boolean;
   matches?: any;
   children?: JSX.Element[];
 }
-export default function(props: Props): JSX.Element {
-  if (!props.data || props.data === null) {
+export default function({data, ...props}: Props): JSX.Element {
+  if (!data || data === null) {
     return <Loading />;
   }
 
-  const thisId = Number(props.matches.id);
-  const item: FeedItem | Details = props.data[thisId];
   return (
     <div>
       <article class={styles.article}>
         <h1>
-          <a href={item.url} class={styles.outboundLink}>
-            {item.title}
+          <a href={data.url} class={styles.outboundLink}>
+            {data.title}
           </a>
         </h1>
-        {item.domain && <small class={styles.hostname}>({item.domain})</small>}
+        {data.domain && <small class={styles.hostname}>({data.domain})</small>}
         <p class={styles.byline}>
-          {item.points} points by{' '}
-          <a href={`/user/${item.user}`} class={styles.link}>
-            {item.user}
+          {data.points} points by{' '}
+          <a href={`/user/${data.user}`} class={styles.link}>
+            {data.user}
           </a>
         </p>
-        {(item as Details).content && <Text text={(item as Details).content} />}
+        {(data as Details).content && <Text text={(data as Details).content} />}
       </article>
-      <Comment descendants={item.comments_count} root={thisId} />
+      <Comment descendants={data.comments_count} data={(data as Details).comments && (data as Details)} error={false} />
     </div>
   );
 }

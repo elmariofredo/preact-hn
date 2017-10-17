@@ -4,12 +4,12 @@ import {RetrieveComments, CommentCallbacks, Comments, Details, FeedItem} from 'a
 export default async ({root}: RetrieveComments, callbacks: CommentCallbacks): Promise<void> => {
   // Fetch the missing values.
   const entity: FeedItem | Details = MemoryRetrieve(root);
-  if ((entity as Details).comments !== undefined) {
-    callbacks.partial(entity as Details);
+  if (entity) {
+    callbacks.partial(entity);
   }
 
   try {
-    const {$entities}: Comments = await (await fetch(`/api/comments/${root}`)).json();
+    const {$entities}: Comments = await (await fetch(`/api/details/${root}`)).json();
     MemoryStore($entities);
     callbacks.complete($entities[root]);
   } catch (error) {

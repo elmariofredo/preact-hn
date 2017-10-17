@@ -9,8 +9,7 @@ import setRequestResources from './plugins/setRequestResources';
 
 // Routes
 import {route as apiListRoute} from './routes/api/list';
-import {route as apiItemsRoute} from './routes/api/items';
-import {route as apiCommentsRoute} from './routes/api/comments';
+import {route as apiDetailsRoute} from './routes/api/details';
 import insecureRedirect from './routes/insecure';
 import defaultRoute from './routes/default-serverrender';
 import shellRoute from './routes/default';
@@ -37,8 +36,7 @@ server.use(setRequestResources(WebpackResources(logger)));
 // TODO: Do not duplicate route definitions...
 // Programatically derive from a single source of truth.
 server.get('/api/list/:type', apiListRoute);
-server.get('/api/items', apiItemsRoute);
-server.get('/api/comments/:id', apiCommentsRoute);
+server.get('/api/details/:id', apiDetailsRoute);
 server.get('/item/:id', insecureRedirect, defaultRoute);
 server.get('/shell', shellRoute);
 server.get('/dist/:classification/:file', staticRoute);
