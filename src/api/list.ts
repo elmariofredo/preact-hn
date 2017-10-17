@@ -81,38 +81,36 @@ export async function getList(
 ): Promise<void> {
   const list: List = (uuid && (MemoryRetrieve(`${uuid} ${type}`) as List)) || null;
   const {from, to}: ListRange = listRange(page);
-  let fetchUrl: string = `/api/list/${type}?from=${from}&to=${to}`;
+  let fetchUrl: string = `/api/list/${type}?${uuid ? `uuid=${uuid}&` : ''}from=${from}&to=${to}`;
+  let cached: number = 0;
 
   if (list !== null) {
-    // Change the fetch url to include the active UUID.
-    // This means we will get results for a known uuid.
-    fetchUrl = `/api/list/${type}?uuid=${uuid}&from=${from}&to=${to}`;
-
-    // The memory store has data for this uuid, filter the data for the range requested (from->to).
-    const cachedKeys: string[] = Object.keys(list.items).filter(itemOrder => {
-      const itemOrderValue = Number(itemOrder);
-      return itemOrderValue >= from && itemOrderValue <= to;
-    });
-
     // Create a copy of the data for the range we have in-memory.
     // This allows the UI to have at least a partial response.
-    let cachedItems: NumberToFeedItemId = {};
-    let cachedEntities: NumberToFeedItem = {};
-    cachedKeys.forEach(key => {
-      const entityId: FeedItem['id'] = list.items[key];
-      cachedItems[key] = entityId;
-      cachedEntities[entityId] = MemoryRetrieve(entityId);
+    let items: NumberToFeedItemId = {};
+    let $entities: NumberToFeedItem = {};
+    Object.keys(list.items).some(key => {
+      const keyAsNumber = Number(key);
+      if (keyAsNumber > to) {
+        return true;
+      } else if (keyAsNumber >= from && keyAsNumber <= to) {
+        const entityId: FeedItem['id'] = list.items[key];
+        items[key] = entityId;
+        $entities[entityId] = MemoryRetrieve(entityId);
+        cached++;
+      }
+      return false;
     });
     const storedResponse: List & ListPage = {
       uuid,
-      items: cachedItems,
+      items,
       type: list.type,
       page: Number(page),
       max: Number(list.max),
-      $entities: cachedEntities,
+      $entities,
     };
 
-    if (cachedKeys.length >= to - from) {
+    if (cached >= to - from) {
       // If the filtered items (only ones within the range of from->to)
       // has a length equal to the length between from and to...
       // then all the items are present in the cachedKeys.

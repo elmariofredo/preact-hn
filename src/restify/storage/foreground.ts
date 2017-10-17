@@ -48,7 +48,6 @@ function handleNewDeletionCandidates({deletionCandidates}: FeedsRetrievedMessage
 }
 
 function handleNewFeeds({feeds}: FeedsRetrievedMessage): void {
-  console.log('handleNewFeeds');
   const newUUID = uuid();
   const uuidSupportedCount = supportedUUIDs.length;
 
@@ -87,7 +86,6 @@ updateThread.on('message', message => {
 
 export function init(): void {
   const message: RetrieveFeedsMessage = {type: BackgroundUpdate.RetrieveFeeds, lastUpdate: null};
-  console.log('init', message);
   updateThread.send(message);
 }
 
@@ -96,7 +94,6 @@ export function getLatestUUID(): string {
 }
 
 export function getFeed(type: LIST_TYPES, uuid: UUID = getLatestUUID()): NumberToFeedItemId {
-  // console.log('getFeed', type);
   if (storedFeeds[uuid] && storedFeeds[uuid] && storedFeeds[uuid][type]) {
     return storedFeeds[uuid][type];
   }

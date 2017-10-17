@@ -33,10 +33,8 @@ export default async function defaultRoute(req, res, next): Promise<void> {
 
   let data = {};
   const listType = (req.url === '/' && 'top') || req.params.type || null;
-  console.log(`render, type: ${listType}`, req.params, req.url);
   if (listType) {
     data = await serverRoute(req, {type: listType});
-    console.log(data);
   }
 
   res.write(`<!DOCTYPE html>

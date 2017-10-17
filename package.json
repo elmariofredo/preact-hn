@@ -6,7 +6,7 @@
   "author": "Kristofer Baxter",
   "license": "MIT",
   "scripts": {
-    "start": "node_modules/.bin/nodemon -e js,css --config nodemon.config.json --exec 'yarn' start:node:dev-after-bundle",
+    "start": "node_modules/.bin/nodemon -e js,css,ts,tsx --config nodemon.config.json --exec 'yarn' start:node:dev-after-bundle",
     "start:node": "node dist/server/restify.server.js | ./node_modules/.bin/bunyan",
     "start:node:dev-after-bundle": "yarn run bundle:dev; yarn run start:node",
     "start:h2o": "cd dist/server && h2o -c h2o.config.yaml",
