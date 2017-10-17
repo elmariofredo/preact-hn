@@ -35,7 +35,11 @@ export default function({data, ...props}: Props): JSX.Element {
         </p>
         {(data as Details).content && <Text text={(data as Details).content} />}
       </article>
-      <Comment descendants={data.comments_count} data={(data as Details).comments && (data as Details)} error={false} />
+      <Comment
+        descendants={data.comments_count}
+        data={(data as Details).comments && (data as Details)}
+        error={props.error}
+      />
     </div>
   );
 }
