@@ -115,10 +115,9 @@ export async function getList(
       // then all the items are present in the cachedKeys.
       callbacks.complete(storedResponse);
       return;
-    } else {
-      // Give the UI the partial response before we fetch the remainder.
-      callbacks.partial(storedResponse);
     }
+    // Give the UI the partial response before we fetch the remainder.
+    callbacks.partial(storedResponse);
   }
 
   try {
