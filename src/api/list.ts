@@ -89,18 +89,17 @@ export async function getList(
     // This allows the UI to have at least a partial response.
     let items: NumberToFeedItemId = {};
     let $entities: NumberToFeedItem = {};
-    Object.keys(list.items).some(key => {
+    for (const key in list.items) {
       const keyAsNumber = Number(key);
       if (keyAsNumber > to) {
-        return true;
+        break;
       } else if (keyAsNumber >= from && keyAsNumber <= to) {
         const entityId: FeedItem['id'] = list.items[key];
         items[key] = entityId;
         $entities[entityId] = MemoryRetrieve(entityId);
         cached++;
       }
-      return false;
-    });
+    }
     const storedResponse: List & ListPage = {
       uuid,
       items,
