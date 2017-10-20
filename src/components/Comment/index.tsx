@@ -6,7 +6,7 @@ import Loading from 'components/Loading';
 import Text from 'components/Text';
 
 import formatTime from 'utils/time';
-import {Details} from 'api/types';
+import {Details} from '@kristoferbaxter/hn-api';
 
 import styles from './styles.css';
 

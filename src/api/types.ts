@@ -1,48 +1,4 @@
-import {LIST_TYPES} from 'utils/constants';
-
-export type UUID = string;
-export type NumberToFeedItemId = {
-  [key: number]: FeedItem['id'];
-};
-export type NumberToFeedItem = {
-  [key: number]: FeedItem;
-};
-
-export interface FeedItem {
-  id: number;
-  title: string;
-  points?: number | null;
-  user?: string | null;
-  time: number;
-  time_ago: string;
-  comments_count: number;
-  type: string;
-  url?: string;
-  domain?: string;
-}
-
-export interface Details extends FeedItem {
-  content: string;
-  deleted?: boolean;
-  dead?: boolean;
-  comments: Details[]; // Comments are details too
-  level: number;
-}
-
-export interface ListRange {
-  from: number;
-  to: number;
-}
-export interface ListPage {
-  page: number;
-}
-export interface List {
-  uuid: UUID;
-  items: NumberToFeedItemId;
-  type: LIST_TYPES;
-  max: number;
-  $entities: NumberToFeedItem;
-}
+import {Details, FeedItem, NumberToFeedItem, ListPage, LIST_TYPES, UUID, List} from '@kristoferbaxter/hn-api';
 
 // Comments Browser API
 export interface RetrieveComments {

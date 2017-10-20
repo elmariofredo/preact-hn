@@ -1,6 +1,6 @@
 import {h} from 'preact';
 import formatTime from 'utils/time';
-import {FeedItem} from 'api/types';
+import {FeedItem} from '@kristoferbaxter/hn-api';
 
 import styles from './styles.css';
 

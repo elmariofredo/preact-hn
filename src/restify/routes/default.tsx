@@ -1,6 +1,6 @@
 // UI Imports
 import {h} from 'preact';
-import render from 'preact-render-to-string';
+import {render} from 'preact-render-to-string';
 // UI Components
 import RoutedView from '../../core/routedView';
 
@@ -35,7 +35,7 @@ export default function defaultRoute(req, res, next) {
     <body>
       <div id="mount">`);
 
-  const RoutedViewComponent = render(<RoutedView url={req.url} delay={0} />);
+  const RoutedViewComponent: string = render(<RoutedView url={req.url} delay={0} />);
 
   res.write(`
         ${RoutedViewComponent}

@@ -1,30 +1,11 @@
 'use strict';
 
 import {MemoryRetrieve, MemoryStore} from 'utils/memory';
-import {ITEMS_PER_PAGE} from 'utils/constants';
-import {
-  UUID,
-  ListRange,
-  List,
-  ListPage,
-  NumberToFeedItemId,
-  NumberToFeedItem,
-  FeedItem,
-  RetrieveList,
-  ListCallbacks,
-} from 'api/types';
+import {listRange} from '@kristoferbaxter/hn-api/lib/utilities';
+import {UUID, ListRange, List, ListPage, NumberToFeedItemId, NumberToFeedItem, FeedItem} from '@kristoferbaxter/hn-api';
+import {RetrieveList, ListCallbacks} from './types';
 
 let LATEST_UUID: UUID;
-
-export function listRange(page: number): ListRange {
-  const from = (page - 1) * ITEMS_PER_PAGE;
-  const to = from + (ITEMS_PER_PAGE - 1);
-
-  return {
-    from,
-    to,
-  };
-}
 
 export function storeList({uuid, items, max, type, $entities}: List): void {
   MemoryStore(

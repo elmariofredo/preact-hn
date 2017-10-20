@@ -3,8 +3,8 @@ import WithData from 'components/WithData';
 import List from 'components/List';
 
 import {getList} from 'api/list';
-import {RetrieveList, List as ListType, ListPage, UUID} from 'api/types';
-import {LIST_TYPES} from 'utils/constants';
+import {RetrieveList} from 'api/types';
+import {LIST_TYPES, List as ListType, ListPage, UUID} from '@kristoferbaxter/hn-api';
 
 interface Props {
   matches: any;

@@ -1,5 +1,6 @@
 import {MemoryRetrieve, MemoryStore} from 'utils/memory';
-import {RetrieveComments, CommentCallbacks, Comments, Details, FeedItem} from 'api/types';
+import {Details, FeedItem} from '@kristoferbaxter/hn-api';
+import {RetrieveComments, CommentCallbacks, Comments} from './types';
 
 /*
  * When requesting a details page, we can use the data from a FeedItem to render instantly (if the user already populated this entity).

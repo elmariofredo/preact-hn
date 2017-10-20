@@ -1,5 +1,5 @@
 import {h} from 'preact';
-import {FeedItem, Details} from 'api/types';
+import {FeedItem, Details} from '@kristoferbaxter/hn-api';
 
 import Loading from 'components/Loading';
 import Comment from 'components/Comment';

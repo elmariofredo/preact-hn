@@ -2,8 +2,8 @@ import {h} from 'preact';
 import Pagination from 'components/Pagination';
 import Loading from 'components/Loading';
 import ListItem from 'components/ListItem';
-import {ITEMS_PER_PAGE} from 'utils/constants';
-import {List, ListPage, FeedItem} from 'api/types';
+import {ITEMS_PER_PAGE} from '@kristoferbaxter/hn-api/lib/constants';
+import {List, ListPage, FeedItem} from '@kristoferbaxter/hn-api';
 
 import styles from './styles.css';
 

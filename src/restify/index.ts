@@ -1,15 +1,15 @@
 import restify from 'restify';
 import bunyan from 'bunyan';
 import WebpackResources from './resources';
-import {init as ForegroundDataInit} from './storage/foreground';
+import {init as ForegroundDataInit} from '@kristoferbaxter/hn-api/lib/storage/foreground';
 
 // Restify Plugins
 import classifyBrowser from './plugins/classifyBrowser';
 import setRequestResources from './plugins/setRequestResources';
 
 // Routes
-import {route as apiListRoute} from './routes/api/list';
-import {route as apiDetailsRoute} from './routes/api/details';
+import {route as apiListRoute} from '@kristoferbaxter/hn-api/lib/routes/list';
+import {route as apiDetailsRoute} from '@kristoferbaxter/hn-api/lib/routes/details';
 import insecureRedirect from './routes/insecure';
 import defaultRoute from './routes/default-serverrender';
 import shellRoute from './routes/default';
@@ -45,7 +45,7 @@ server.get('/service-worker.js', serviceWorkerRoute);
 server.get('/.*', insecureRedirect, defaultRoute);
 
 // Prefetch Data for API.
-ForegroundDataInit();
+ForegroundDataInit('dist/server/restify.background.js');
 
 server.listen(22164, function() {
   console.log('%s listening at %s', server.name, server.url);
