@@ -26,9 +26,9 @@ export default function({index, entity}: Props): JSX.Element {
           <a href={`/user/${user}`} class={styles.link}>
             {user}
           </a>{' '}
-          {formatTime(time)} ago
+          {formatTime(time)}
           <a href={`/item/${id}`} class={styles.commentCount}>
-            {comments_count > 1 ? `${comments_count} comments` : 'discuss'}
+            {comments_count === 0 ? 'discuss' : `${comments_count} comment${comments_count > 1 ? 's' : ''}`}
           </a>
         </p>
       </div>

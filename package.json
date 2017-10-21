@@ -33,7 +33,6 @@
     "@kristoferbaxter/hn-api": "^1.0.3",
     "bunyan": "^1.8.12",
     "forever": "^0.15.3",
-    "history": "^4.7.2",
     "node-fetch": "^1.7.3",
     "obj-str": "^1.0.0",
     "object-assign-polyfill": "^0.1.0",

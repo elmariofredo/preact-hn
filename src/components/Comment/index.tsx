@@ -34,7 +34,7 @@ function Comment({data, kidsOnly}: CommentProps): JSX.Element {
           <a href={`/user/${user}`} class={styles.userLink}>
             {user}
           </a>
-          <span class={styles.ago}>{formatTime(time)} ago</span>
+          <span class={styles.ago}>{formatTime(time)}</span>
         </header>
         <Text text={content} isComment={true} />
         {comments && (
@@ -53,7 +53,7 @@ interface Props {
 export default function({descendants, data, error}: Props): JSX.Element {
   return (
     <div class={styles.comments}>
-      {!error && <h2 class={styles.numberOfComments}>{`${descendants} comment${descendants > 1 ? 's' : ''}`}</h2>}
+      {!error && descendants > 0 ? <h2 class={styles.numberOfComments}>{descendants} comments</h2> : null}
       {error && <Error />}
       {!error && (
         <section>
