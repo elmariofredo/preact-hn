@@ -34,6 +34,21 @@ const nodeEnvReplacement = {
   from: /NODE_ENV/g,
   to: JSON.stringify(process.env.NODE_ENV || 'development'),
 };
+const networkFirstReplacement = {
+  files: destination,
+  from: /NETWORK_FIRST_PATTERN/g,
+  to: /\/api\/details/,
+};
+const cacheFirstReplacement = {
+  files: destination,
+  from: /CACHE_FIRST_PATTERN/g,
+  to: /\/api\/list/,
+};
+const staticReplacement = {
+  files: destination,
+  from: /STATIC_PRECACHED_PATTERN/g,
+  to: /\/dist\/chrome/,
+};
 
 try {
   execSync(`cp ${departure} ${destination}`);
@@ -41,6 +56,9 @@ try {
   replace.sync(prefetchReplacement);
   replace.sync(fallbackDocumentReplacement);
   replace.sync(nodeEnvReplacement);
+  replace.sync(networkFirstReplacement);
+  replace.sync(cacheFirstReplacement);
+  replace.sync(staticReplacement);
   console.log(`Service Worker Generated at ${destination}`);
 } catch (error) {
   console.error('Error Generating Service Worker', error);
