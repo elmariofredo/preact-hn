@@ -7,6 +7,7 @@ const jsFiles = fs
   .map(filename => `dist/chrome/${filename}`);
 
 module.exports = {
+  dontCacheBustUrlsMatching: /./,
   staticFileGlobs: ['/shell', 'dist/chrome/*.js'],
   dynamicUrlToDependencies: {
     '/shell': jsFiles,
@@ -15,7 +16,7 @@ module.exports = {
   runtimeCaching: [
     {
       urlPattern: /\/api\/list\//,
-      handler: 'networkFirst',
+      handler: 'cacheFirst',
     },
     {
       urlPattern: /\/api\/details\//,
