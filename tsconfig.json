@@ -22,7 +22,7 @@
         "src/routes/*"
       ],
       "storage/*": [
-        "src/restify/storage/*"
+        "src/server/storage/*"
       ]
     },
     "allowJs": true,

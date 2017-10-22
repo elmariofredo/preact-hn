@@ -12,7 +12,7 @@ fs
 
 module.exports = {
   entry: {
-    server: './src/restify/index',
+    server: './src/server/index',
     background: './node_modules/@kristoferbaxter/hn-api/lib/storage/background',
   },
   target: 'node',
