@@ -74,7 +74,6 @@
     "prettier": "^1.7.4",
     "replace-in-file": "^3.0.0-beta.2",
     "style-loader": "^0.18.2",
-    "sw-precache": "^5.2.0",
     "ts-loader": "^2.3.5",
     "typed-css-modules": "^0.3.0",
     "typescript": "^2.5.3",

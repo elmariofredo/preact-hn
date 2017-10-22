@@ -15,7 +15,7 @@ import defaultRoute from './routes/default-serverrender';
 import shellRoute from './routes/default';
 import staticRoute from './routes/static';
 import staticIconRoute from './routes/static-icons';
-import serviceWorkerRoute from './routes/serviceWorker';
+import serviceWorkerRoute from './routes/service-worker';
 
 // Server Constants
 const APPLICATION_NAME = 'hn-web';
