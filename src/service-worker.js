@@ -33,6 +33,25 @@ async function prefetch(cacheName, urls) {
   return;
 }
 
+async function purgeCaches() {
+  const expectedCacheNames = Object.keys(CURRENT_CACHES).map(key => {
+    return CURRENT_CACHES[key];
+  });
+
+  const cacheNames = await caches.keys();
+  for (const index in cacheNames) {
+    const cacheName = cacheNames[index];
+    if (!expectedCacheNames.includes(cacheName)) {
+      if (NODE_ENV !== 'production') {
+        console.log(`Deleting out of date cache: ${cacheName}`);
+      }
+      await caches.delete(cacheName);
+    }
+  }
+
+  return;
+}
+
 self.addEventListener('install', event => {
   if (NODE_ENV !== 'production') {
     console.log(`Install, prefetch: PREFETCH_URLS`);
@@ -47,24 +66,10 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  const expectedCacheNames = Object.keys(CURRENT_CACHES).map(key => {
-    return CURRENT_CACHES[key];
-  });
-
   event.waitUntil(
     (async function() {
       await clients.claim();
-
-      const cacheNames = await caches.keys();
-      for (const index in cacheNames) {
-        const cacheName = cacheNames[index];
-        if (!expectedCacheNames.includes(cacheName)) {
-          if (NODE_ENV !== 'production') {
-            console.log(`Deleting out of date cache: ${cacheName}`);
-          }
-          await caches.delete(cacheName);
-        }
-      }
+      await purgeCaches();
     })(),
   );
 });
@@ -200,7 +205,9 @@ self.addEventListener('message', event => {
             }
 
             // Pre-fetch the first page for all types with new uuid.
-            return await prefetch(CURRENT_CACHES.runtime, [`/api/list/top?uuid=${event.data.uuid}&from=0&to=29`]);
+            await purgeCaches();
+            await prefetch(CURRENT_CACHES.runtime, [`/api/list/top?uuid=${event.data.uuid}&from=0&to=29`]);
+            return;
           }
           return;
         default:
