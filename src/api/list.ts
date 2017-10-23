@@ -54,6 +54,16 @@ function deriveResponse(
 
 export function setLatestUUID(uuid): void {
   LATEST_UUID = uuid;
+
+  if (ALLOW_OFFLINE) {
+    // Fire and forget a message to the service worker informing it of a new UUID.
+    const {controller} = navigator.serviceWorker;
+    controller &&
+      controller.postMessage({
+        command: 'uuid-update',
+        uuid: uuid,
+      });
+  }
 }
 
 export async function getList(

@@ -7,6 +7,8 @@
 // CACHE_FIRST_PATTERN: RegExp
 // STATIC_PRECACHED_PATTERN: RegExp
 
+self.importScripts('https://unpkg.com/idb-keyval@2.3.0/dist/idb-keyval-min.js');
+
 const CURRENT_CACHES = {
   prefetch: `prefetch-v-APP_VERSION`,
   runtime: `runtime-v-APP_VERSION`,
@@ -36,7 +38,12 @@ self.addEventListener('install', event => {
     console.log(`Install, prefetch: PREFETCH_URLS`);
   }
 
-  event.waitUntil(prefetch(CURRENT_CACHES.prefetch, PREFETCH_URLS));
+  event.waitUntil(
+    (async function() {
+      self.skipWaiting();
+      prefetch(CURRENT_CACHES.prefetch, PREFETCH_URLS);
+    })(),
+  );
 });
 
 self.addEventListener('activate', event => {
@@ -163,25 +170,42 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
-  if (NODE_ENV !== 'production') {
-    console.log(`Handling message event: ${event}`);
-  }
-  event.waitUntil(async () => {
-    const cache = await caches.open(CURRENT_CACHES.api);
-    switch (event.data.command) {
-      case 'uuid-update':
-        // Delete all the cache entries for older uuids.
-        const matches = await cache.matchAll(/api\/list/);
-        matches.forEach(
-          await async function(element) {
-            return await cache.delete(element);
-          },
-        );
+  event.waitUntil(
+    (async function() {
+      if (NODE_ENV !== 'production') {
+        console.log(`Handling message event: ${event.data.command}`);
+      }
 
-        // Pre-fetch the first page for all types with new uuid.
-        return await prefetch(CURRENT_CACHES.api, [`/api/list/top?uuid=${event.data.uuid}&from=0&to=29`]);
-      default:
-        throw Error(`Unknown command: ${event.data.command}`);
-    }
-  });
+      switch (event.data.command) {
+        case 'uuid-update':
+          // Get the currently stored UUID.
+          const storedUUID = await idbKeyval.get('uuid');
+
+          if (storedUUID !== event.data.uuid) {
+            // Store the new UUID so future requests without a UUID will use it.
+            await idbKeyval.set('uuid', event.data.uuid);
+
+            // Delete all the cache entries for older uuids.
+            const cache = await caches.open(CURRENT_CACHES.runtime);
+            const keys = await cache.keys();
+            // TODO: cache.matchAll doesn't appear to work in Chrome Canary.
+            for (const index in keys) {
+              const key = keys[index];
+              const url = new URL(key.url);
+              if (/\/api\/list/.test(url.pathname)) {
+                if (url.searchParams.get('uuid') !== event.data.uuid) {
+                  await cache.delete(key);
+                }
+              }
+            }
+
+            // Pre-fetch the first page for all types with new uuid.
+            return await prefetch(CURRENT_CACHES.runtime, [`/api/list/top?uuid=${event.data.uuid}&from=0&to=29`]);
+          }
+          return;
+        default:
+          throw Error(`Unknown command: ${event.data.command}`);
+      }
+    })(),
+  );
 });

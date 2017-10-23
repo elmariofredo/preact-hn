@@ -47,5 +47,5 @@ render(
 );
 
 if (ALLOW_OFFLINE) {
-  navigator.serviceWorker && navigator.serviceWorker.register('/service-worker.js');
+  navigator.serviceWorker.register('/service-worker.js');
 }
